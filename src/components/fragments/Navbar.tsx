@@ -1,14 +1,14 @@
 import { IoMenu } from 'react-icons/io5';
 import useMediaQuery from '../../hook/useMediaQuery';
-import { NavbarMenu } from '../../contex/NavbarContext';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useNavbarMenu } from '../../contex/NavbarContext';
 // import { useState } from 'react';
 const Navbar: React.FC = () => {
-  //   const [open, setOpen] = useState<boolean>(false);
-  const [open, setOpen] = useContext(NavbarMenu);
+  const { open, setOpen } = useNavbarMenu();
 
   const handleClick = () => {
-    setOpen((prev) => !prev);
+    setOpen(!open);
     document.body.classList.toggle('overflow-hidden');
   };
 
@@ -29,12 +29,18 @@ const Navbar: React.FC = () => {
       <img src="/Images/logo.png" alt="Icon Logo" width={150} height={150} />
       <IoMenu size={30} onClick={handleClick} className=" md:hidden" />
       <div className="item  items-center gap-x-4 md:flex hidden">
-        <p className="  cursor-pointer font-bold border-b-0 hover:border-b-2 transition-all ease-in-out duration-100  border-yellow-300">
+        <Link
+          to={'/user'}
+          className="  cursor-pointer font-bold border-b-0 hover:border-b-2 transition-all ease-in-out duration-100  border-yellow-300"
+        >
           Home
-        </p>
-        <p className=" cursor-pointer font-bold border-b-0 hover:border-b-2 transition-all ease-in-out duration-100   border-yellow-300">
-          Anggota
-        </p>
+        </Link>
+        <Link
+          to={'/user/add'}
+          className=" cursor-pointer font-bold border-b-0 hover:border-b-2 transition-all ease-in-out duration-100   border-yellow-300"
+        >
+          Tambah
+        </Link>
       </div>
       <div
         className={` ${

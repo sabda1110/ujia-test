@@ -3,19 +3,15 @@ import { getAnggota } from '../service/anggota.service';
 import ModalPegawai from '../components/fragments/ModalPegawai';
 import ModalLoading from '../components/fragments/ModalLoading';
 import { FaPersonCirclePlus } from 'react-icons/fa6';
-import { NavbarMenu } from '../contex/NavbarContext';
-import { useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addAwal } from '../redex/slices/anggotaSlice';
+import { useNavbarMenu } from '../contex/NavbarContext';
 const HomePage: React.FC = () => {
   const [anggota, setAnggota] = useState<MyApp.Pegawai[]>([
     {
       id: '',
       nama: '',
-      provinsi: {},
-      kabupaten: {},
-      kecamatan: {},
-      kelurahan: {},
       jalan: ''
     }
   ]);
@@ -25,12 +21,16 @@ const HomePage: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await getAnggota();
-        if (response.status) {
-          setAnggota(response.data);
-          dispatch(addAwal(response.data));
+        const response: MyApp.ResponData | undefined = await getAnggota();
+        if (response !== undefined) {
+          if (response.status) {
+            setAnggota(response.data as MyApp.Pegawai[]);
+            dispatch(addAwal(response.data as MyApp.Pegawai[]));
+          } else {
+            throw new Error(response.data as string);
+          }
         } else {
-          throw new Error(response.data);
+          throw new Error('Failed to get anggota');
         }
       } catch (err) {
         console.log(err);
@@ -42,7 +42,7 @@ const HomePage: React.FC = () => {
     fetchData();
   }, []);
 
-  const [open] = useContext(NavbarMenu);
+  const { open } = useNavbarMenu();
 
   return (
     <div
@@ -57,10 +57,13 @@ const HomePage: React.FC = () => {
       />
       <h1 className=" mt-10 text-3xl font-bold text-[#242424]">Anggota</h1>
       <div className=" mt-5 flex button  w-[70%] justify-end">
-        <section className=" bg-gray-400 rounded-md cursor-pointer hover:bg-gray-600 text-white flex items-center md:p-4 p-2 gap-x-4">
+        <Link
+          to={'/user/add'}
+          className=" bg-gray-400 rounded-md cursor-pointer hover:bg-gray-600 text-white flex items-center md:p-4 p-2 gap-x-4"
+        >
           <FaPersonCirclePlus className="" size={20} />
           <p>Tambah</p>
-        </section>
+        </Link>
       </div>
       <div className=" md:w-[70%]  w-[90%] relative   flex gap-5 mt-2 flex-wrap border-2 border-gray-300 p-4 rounded-md">
         {!loading &&

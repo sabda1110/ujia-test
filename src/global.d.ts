@@ -25,7 +25,7 @@ declare global {
     };
 
     type Pegawai = {
-      id: string;
+      id?: string;
       nama: string;
       provinsi?: Provinsi | null;
       kabupaten?: Kabupaten | null;
@@ -37,6 +37,40 @@ declare global {
     type Action = {
       type: string;
       payload: Pegawai;
+    };
+
+    type InitialState = {
+      data: Pegawai[];
+    };
+
+    type NavbarMenuContextType = {
+      open: boolean;
+      setOpen: (open: boolean) => void;
+    };
+
+    type ResponData = {
+      status: boolean;
+      statusCode: number;
+      data:
+        | Pegawai[]
+        | Kecamatan[]
+        | Provinsi[]
+        | Kelurahan[]
+        | Kabupaten[]
+        | string;
+    };
+
+    type InputSelectProps = {
+      label: string;
+      name: string;
+      formik: any;
+      data: object[];
+    };
+
+    type InputTextProps = {
+      name: string;
+      label: string;
+      formik: any;
     };
   }
 }
