@@ -1,72 +1,103 @@
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useFormik } from 'formik';
+import {
+  isValidProvinsi,
+  isValidKelurahan,
+  isValidKecamatan,
+  isValidKabupaten
+} from '../lib/validateField';
 import AutoComplete from '../components/elements/AutoComplete/AutoComplete';
 import InputSelect from '../components/elements/Input/InputSelect';
 import InputText from '../components/elements/Input/InputText';
 import TitileInput from '../components/elements/Title/TitileInput';
 import { useEffect, useState } from 'react';
 import { getLokasi, getProvinsi } from '../service/lokasi.service';
-import { useFormik } from 'formik';
 import InputTextArea from '../components/elements/Input/InputTextArea';
-import Swal from 'sweetalert2';
-import { addAnggota } from '../service/anggota.service';
 import InputSelectMui from '../components/elements/SelectMui/InputSelectMui';
 import { addValidate } from '../lib/validateForem';
+import Swal from 'sweetalert2';
+import { editAnggota } from '../service/anggota.service';
 
-const TambahPage: React.FC = () => {
+const UpdatePage: React.FC = () => {
   const [provinsi, setProvinsi] = useState<MyApp.Provinsi[]>([]);
   const [kabupaten, setKabupaten] = useState<MyApp.Kabupaten[]>([]);
   const [kecamatan, setKecamatan] = useState<MyApp.Kecamatan[]>([]);
   const [kelurahan, setKelurahan] = useState<MyApp.Kelurahan[]>([]);
+  const { id } = useParams();
+  const anggota: MyApp.Pegawai = useSelector((state: any) => {
+    return state.anggota.data.find(
+      (anggota: MyApp.Pegawai) => anggota.id === id
+    );
+  });
 
-  //handleSubmit
-  const handleSubmit = async () => {
-    Swal.fire('Upload...');
-    Swal.showLoading();
-    try {
-      const response: MyApp.ResponData | undefined = await addAnggota(
-        formik.values
-      );
-      if (response !== undefined) {
-        if (response.status) {
-          Swal.close();
-        } else {
-          throw new Error(response.data as string);
+  const handleSubmit = () => {
+    Swal.fire({
+      title: 'Apakah Kamu Yakin?',
+      text: 'Kamu akan mengedit data ini!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, edit it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          Swal.fire('Edit...');
+          Swal.showLoading();
+          const response: MyApp.ResponData | undefined = await editAnggota(
+            formik.values,
+            id as string
+          );
+          if (response !== undefined) {
+            if (response.status) {
+              Swal.close();
+            } else {
+              throw new Error(response.data as string);
+            }
+          } else {
+            throw new Error('Failed to edit anggota');
+          }
+        } catch (err) {
+          console.log(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Something went wrong!'
+          });
+        } finally {
+          Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: 'Anggota Update successfully',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          setTimeout(() => {
+            window.location.href = '/user';
+          }, 1000);
         }
-      } else {
-        throw new Error('Failed to add anggota');
       }
-    } catch (err) {
-      console.log(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Something went wrong!'
-      });
-    } finally {
-      Swal.fire({
-        position: 'top-end',
-        icon: 'success',
-        title: 'Anggota added successfully',
-        showConfirmButton: false,
-        timer: 1500
-      });
-      formik.resetForm();
-      setTimeout(() => {
-        window.location.href = '/user';
-      }, 1000);
-    }
+    });
   };
 
-  //Insialisasi Formik
-  const formik = useFormik<any>({
+  const formik = useFormik({
     initialValues: {
-      nama: '',
-      provinsi: null,
-      kabupaten: null,
-      kecamatan: null,
-      kelurahan: null,
-      jalan: ''
+      nama: typeof anggota?.nama === 'string' ? anggota.nama : '',
+      provinsi: isValidProvinsi(anggota?.provinsi) ? anggota.provinsi : null,
+      kabupaten: isValidKabupaten(anggota?.kabupaten)
+        ? anggota.kabupaten
+        : null,
+      kecamatan: isValidKecamatan(anggota?.kecamatan)
+        ? anggota.kecamatan
+        : null,
+      kelurahan: isValidKelurahan(anggota?.kelurahan)
+        ? anggota.kelurahan
+        : null,
+      jalan: typeof anggota?.jalan === 'string' ? anggota.jalan : ''
     },
     validate: addValidate,
+
     onSubmit: handleSubmit
   });
 
@@ -78,9 +109,6 @@ const TambahPage: React.FC = () => {
         if (response !== undefined) {
           if (response.status) {
             setProvinsi(response.data as MyApp.Provinsi[]);
-            formik.setFieldValue('kabupaten', {});
-            formik.setFieldValue('kecamatan', {});
-            formik.setFieldValue('kelurahan', {});
           } else {
             throw new Error(response.data as string);
           }
@@ -92,8 +120,11 @@ const TambahPage: React.FC = () => {
       }
     };
 
-    fetchData();
-  }, []);
+    if (formik.values.provinsi !== undefined) {
+      // Memeriksa apakah nilai provinsi sudah diatur
+      fetchData();
+    }
+  }, [formik.values.provinsi]);
 
   //Dapatin Kabupaten
   useEffect(() => {
@@ -107,8 +138,6 @@ const TambahPage: React.FC = () => {
         if (response !== undefined) {
           if (response.status) {
             setKabupaten(response.data as MyApp.Kabupaten[]);
-            formik.setFieldValue('kecamatan', {});
-            formik.setFieldValue('kelurahan', {});
           } else {
             throw new Error(response.data as string);
           }
@@ -139,8 +168,6 @@ const TambahPage: React.FC = () => {
         if (response !== undefined) {
           if (response.status) {
             setKecamatan(response.data as MyApp.Kecamatan[]);
-
-            formik.setFieldValue('kelurahan', {});
           } else {
             throw new Error(response.data as string);
           }
@@ -196,7 +223,7 @@ const TambahPage: React.FC = () => {
     <div
       className={`md:mt-[4.4rem] mt-[11rem]  h-[90svh] flex flex-col items-center justify-center`}
     >
-      <h1 className=" text-3xl font-bold text-[#242424]">Tambah User</h1>
+      <h1 className=" text-3xl font-bold text-[#242424]">Update User</h1>
       <form
         onSubmit={formik.handleSubmit}
         className="container w-[80%] md:h-[88%]   bg-[#f4f6f8] shadow-lg border p-4 border-gray-200 mt-5 rounded-lg"
@@ -206,12 +233,14 @@ const TambahPage: React.FC = () => {
         <TitileInput label="Alamat" />
         <div className=" w-full grid md:grid-cols-2 gap-y-3">
           <AutoComplete data={provinsi} name="provinsi" formik={formik} />
+
           <InputSelectMui
             label="Kelurahan"
             data={kabupaten}
             name="kabupaten"
             formik={formik}
           />
+
           <InputSelect
             label={'Kecamatan'}
             name={'kecamatan'}
@@ -240,4 +269,4 @@ const TambahPage: React.FC = () => {
   );
 };
 
-export default TambahPage;
+export default UpdatePage;

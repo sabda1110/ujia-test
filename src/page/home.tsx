@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getAnggota } from '../service/anggota.service';
 import ModalPegawai from '../components/fragments/ModalPegawai';
 import ModalLoading from '../components/fragments/ModalLoading';
 import { FaPersonCirclePlus } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import Swal from 'sweetalert2';
+import { deleteAnggota } from '../service/anggota.service';
 import { addAwal } from '../redex/slices/anggotaSlice';
 import { useNavbarMenu } from '../contex/NavbarContext';
 const HomePage: React.FC = () => {
@@ -26,6 +28,7 @@ const HomePage: React.FC = () => {
           if (response.status) {
             setAnggota(response.data as MyApp.Pegawai[]);
             dispatch(addAwal(response.data as MyApp.Pegawai[]));
+            localStorage.setItem('data', JSON.stringify(response.data));
           } else {
             throw new Error(response.data as string);
           }
@@ -43,6 +46,55 @@ const HomePage: React.FC = () => {
   }, []);
 
   const { open } = useNavbarMenu();
+
+  const handleDelete = useCallback(async (id: string) => {
+    Swal.fire({
+      title: 'Apakah Kamu Yakin?',
+      text: 'Kamu akan menghapus data ini!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          Swal.fire('Delete...');
+          Swal.showLoading();
+          const response: MyApp.ResponData | undefined = await deleteAnggota(
+            id
+          );
+          if (response !== undefined) {
+            if (response.status) {
+              Swal.close();
+            } else {
+              throw new Error(response.data as string);
+            }
+          } else {
+            throw new Error('Failed to delete anggota');
+          }
+        } catch (err) {
+          console.log(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Something went wrong!'
+          });
+        } finally {
+          Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: 'Anggota Delete successfully',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          setTimeout(() => {
+            window.location.href = '/user';
+          }, 1000);
+        }
+      }
+    });
+  }, []);
 
   return (
     <div
@@ -68,7 +120,7 @@ const HomePage: React.FC = () => {
       <div className=" md:w-[70%]  w-[90%] relative   flex gap-5 mt-2 flex-wrap border-2 border-gray-300 p-4 rounded-md">
         {!loading &&
           anggota.map((item: MyApp.Pegawai, index) => (
-            <ModalPegawai pegawai={item} key={index} />
+            <ModalPegawai pegawai={item} onDelete={handleDelete} key={index} />
           ))}
         {loading &&
           Array.from({ length: 2 }, (_, index) => {

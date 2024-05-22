@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState: MyApp.InitialState = {
-  data: []
+  data: JSON.parse(localStorage.getItem('data') as string) || []
 };
 
 const anggotaSlice = createSlice({

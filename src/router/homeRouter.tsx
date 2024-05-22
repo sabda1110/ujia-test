@@ -3,6 +3,7 @@ import HomePage from '../page/home';
 import { Fragment } from 'react';
 import Navbar from '../components/fragments/Navbar';
 import TambahPage from '../page/tambah';
+import UpdatePage from '../page/updateAnggota';
 
 const HomeRouter: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ const HomeRouter: React.FC = () => {
       <Switch>
         <Route path="/" Component={HomePage} />
         <Route path="/add" Component={TambahPage} />
+        <Route path="/edit/:id" Component={UpdatePage} />
       </Switch>
     </Fragment>
   );
