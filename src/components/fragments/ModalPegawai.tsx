@@ -17,7 +17,7 @@ const ModalPegawai: React.FC<ModalPegawaiProps> = ({ pegawai, onDelete }) => {
     <section className="flex flex-col gap-y-2 p-2 md:w-[30%] w-full shadow-md bg-[#F5F6F7] border rounded-md">
       <div className="w-[100%] items-center grid grid-cols-2">
         <IoPerson className="text-blue-400" size={20} />
-        <p className="font-bold md:ml-[-6.5rem] text-[#242424] md:text-[1rem] text-[0.8rem] ">
+        <p className="font-bold md:ml-[-6.5rem] ml-[-8.3rem] text-[#242424] md:text-[1rem] text-[0.8rem] ">
           {pegawai?.nama}
         </p>
       </div>
