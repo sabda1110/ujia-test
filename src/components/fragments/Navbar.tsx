@@ -25,7 +25,7 @@ const Navbar: React.FC = () => {
   }
 
   return (
-    <div className=" fixed top-0 w-full z-50 md:px-14 px-3   flex p-4 md:h-[10svh] h-[100px] justify-between bg-[#F5F6F7] shadow-md items-center">
+    <div className=" fixed top-0 w-full z-50 md:px-14 px-3   flex p-4 md:h-[10svh] h-[90px] justify-between bg-[#F5F6F7] shadow-md items-center">
       <img src="/Images/logo.png" alt="Icon Logo" width={150} height={150} />
       <IoMenu size={30} onClick={handleClick} className=" md:hidden" />
       <div className="item  items-center gap-x-4 md:flex hidden">
@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
       <div
         className={` ${
           open ? 'translate-x-0' : '-translate-x-full'
-        } absolute left-0 top-[6.3rem] flex items-center p-4 cursor-pointer text-white justify-center gap-y-6 flex-col  transition-all md:hidden ease-in-out duration-200 bg-black/80 w-screen h-screen`}
+        } absolute left-0 md:top-[4.3rem] top-[5.8rem] flex items-center p-4 cursor-pointer text-white justify-center gap-y-6 flex-col  transition-all md:hidden ease-in-out duration-200 bg-black/80 w-screen h-screen`}
       >
         <p className=" text-3xl border-b-0 hover:border-b-2 w-full text-center border-yellow-200 transition-all ease-in duration-150">
           Home
